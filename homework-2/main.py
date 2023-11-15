@@ -16,7 +16,7 @@ if __name__ == '__main__':
     file_path = os.path.join(os.path.dirname(__file__), FILE)
     Item.instantiate_from_csv(file_path)  # создание объектов из данных файла
     assert len(Item.all) == 5  # в файле 5 записей с данными по товарам
-    #assert len(Item.instantiate_from_csv(file_path)) == 5
+    assert len(Item.instantiate_from_csv(file_path)) == 5
 
     item1 = Item.all[0]
 
