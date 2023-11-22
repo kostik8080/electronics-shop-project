@@ -86,6 +86,13 @@ class Item:
             return string
 
 
+    def __add__(self, other):
+        if isinstance(other, Item):
+            return self.quantity + other.quantity
+        else:
+            raise ValueError("Cannot add Phone with non-Phone instances")
+
+
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', {self.price}, {self.quantity})"
 
