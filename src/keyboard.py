@@ -3,7 +3,7 @@ from src import item
 
 class LanguageMixin:
     """
-    Mixin class for managing and changing the keyboard layout language.
+    Класс Mixin для управления языковой раскладкой клавиатуры и ее изменения.
     """
     LANGUAGES = ['EN', 'RU']
 
@@ -18,14 +18,17 @@ class LanguageMixin:
 
     @language.setter
     def language(self, value):
+        """
+        Дает возможность изменять язык между 'RU, EN'
+        """
         if value in self.LANGUAGES:
             self.__language = value
         else:
-            raise ValueError(f"Unsupported language: {value}")
+            raise AttributeError("property 'language' of 'Keyboard' object has no setter")
 
     def change_lang(self):
         """
-        Toggles the keyboard layout language between the available languages.
+        Переключает язык раскладки клавиатуры между доступными языками.
         """
         if self.language == 'EN':
             self.language = 'RU'
