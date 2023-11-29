@@ -1,16 +1,18 @@
-import csv
+class InstantiateCSVError(Exception):
+    def __init__(self):
+        self.error = 'Файл item.csv поврежден'
 
-import os
+    def __str__(self):
+        return self.error
 
 
-# noinspection PyTypeChecker
 class Item:
     """
     Класс для представления товара в магазине.
     """
+
     pay_rate = 1.0
     all = []
-    items = all
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         """
@@ -20,22 +22,11 @@ class Item:
         :param price: Цена за единицу товара.
         :param quantity: Количество товара в магазине.
         """
-        super().__init__()
         self.__name = name
         self.price = price
         self.quantity = quantity
-        # self.all.append(self)
 
-    @property
-    def name(self):
-        return self.__name
-
-    @name.setter
-    def name(self, name):
-        if len(name) <= 10:
-            self.__name = name
-        else:
-            self.__name = name[0:10]
+        Item.all.append(self)
 
     def calculate_total_price(self) -> float:
         """
@@ -49,36 +40,61 @@ class Item:
         """
         Применяет установленную скидку для конкретного товара.
         """
-        self.price *= Item.pay_rate
+        self.price = self.price * self.pay_rate
+        return self.price
+
+    @property
+    def name(self):
+        """
+        Декоратор property.
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, name):
+        """
+        Сеттер обрезающий длину наименования, если она превышает 10 символов.
+        """
+        if len(name) > 10:
+            self.__name = name[:10]
+        else:
+            self.__name = name
+        return self.__name
 
     @classmethod
-    def instantiate_from_csv(cls, data_file):
+    def instantiate_from_csv(cls, path):
         """
-        Создает экземпляры класса Item из данных, полученных из файла items.csv.
+        Класс-метод, который принимает путь к документу с значениями.
+        Открывает документ и преобразовывает его в словарь.
+        Инициализирует значения под атрибуты класса
         """
-        file_path = os.path.join(os.path.dirname(__file__), data_file)
-
+        import csv
+        import os
         cls.all.clear()
-        with open(file_path, 'r', newline="") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                name = row['name']
-                price = cls.string_to_number(row['price'])
-                quantity = cls.string_to_number(row['quantity'])
-                items_csv = Item(name, price, quantity)
-                items = cls.all.append(items_csv)
-
-            return cls.all
+        paths = os.path.exists(path)
+        if paths == False:
+            raise FileNotFoundError('Отсутствует файл item.csv')
+        else:
+            with open(path, 'r', newline='') as attributes:
+                attribute = csv.DictReader(attributes)
+                for attr in attribute:
+                    if 'name' not in attr:
+                        raise InstantiateCSVError
+                    name = attr['name']
+                    if 'price' not in attr:
+                        raise InstantiateCSVError
+                    price = cls.string_to_number(attr['price'])
+                    if 'quantity' not in attr:
+                        raise InstantiateCSVError
+                    quantity = cls.string_to_number(attr['quantity'])
+                    items_csv = Item(name, price, quantity)
+            return items_csv
 
     @staticmethod
-    def string_to_number(string):
+    def string_to_number(string: str):
         """
-        Преобразует строку в число, если это возможно.
-
-        :param string: Входная строка.
-        :return: Число или исходная строка, если преобразование невозможно.
+        Метод принимает строковое значение числа и переводит его в целое число
         """
-
         if string.isdigit:
             if '.' in string:
                 string = int(float(string))
@@ -86,21 +102,16 @@ class Item:
                 string = int(string)
             return string
 
-
-    def __add__(self, other):
-        if isinstance(other, Item):
-            return self.quantity + other.quantity
-        else:
-            raise ValueError("Cannot add Phone with non-Phone instances")
-
-
     def __repr__(self):
-        return f"{self.__class__.__name__}('{self.name}', {self.price}, {self.quantity})"
-
+        return f"{self.__class__.__name__}('{self.__name}', {self.price}, {self.quantity})"
 
     def __str__(self):
-        return f"{self.name}"
+        return self.__name
 
-
-
-
+    def __add__(self, other):
+        """ Магический метод add делает проверку что:
+        Экземпляр self относиться к классу self
+        Экземпляр other наследуется от класса self """
+        if isinstance(self, self.__class__):
+            if issubclass(other.__class__, self.__class__):
+                return self.quantity + other.quantity

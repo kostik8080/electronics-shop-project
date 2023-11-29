@@ -9,7 +9,6 @@ class LanguageMixin:
 
     def __init__(self):
 
-
         self.__language = 'EN'
 
     @property
@@ -34,11 +33,6 @@ class LanguageMixin:
             self.language = 'RU'
         else:
             self.language = 'EN'
-
-
-
-
-
 
 
 class Keyboard(item.Item, LanguageMixin):
